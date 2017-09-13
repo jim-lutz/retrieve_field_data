@@ -54,13 +54,3 @@ theme_set( theme_bw() )
 # if(!require(scales)){install.packages("scales")}
 # library(scales)
 
-
-# install the RSmap tools
-# https://pythonhosted.org/Smap/en/2.0/R_access.html
-# https://github.com/SoftwareDefinedBuildings/smap/blob/master/R/RSmap_1.0.tar.gz
-install.packages("RCurl")
-install.packages("RJSONIO")
-
-install.packages("/home/jiml/Downloads/RSmap_1.0.tar.gz", repos=NULL)
-library(RSmap)
-
