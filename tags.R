@@ -27,55 +27,46 @@ source("functions.R")
 # following these instructions
 # https://pythonhosted.org/Smap/en/2.0/R_access.html
 RSmap("http://ec2-54-184-120-83.us-west-2.compute.amazonaws.com/backend")
-# had to reinstall RSmap?
 
-# get the tags
-tags <- RSmap.tags("Metadata/SourceName = 'HWDS_h1'")
-
-str(tags)
-# got something
-
-length(tags)
-# 81
-
-str(tags[1])
-# looks like it works
-
-# now try flattening list
-flat.tags.1 <- unlist(tags[1])
-
-str(flat.tags.1)
-class(flat.tags.1)
-
-# can get the samething this way
-names(flat.tags.1)
-
-# get the names as a list
-ft1names <- unlist(names(flat.tags.1))
-class(ft1names)
-str(ft1names)
-
-# now remove the names
-names(flat.tags.1) <- NULL
-flat.tags.1
-class(flat.tags.1)
-str(flat.tags.1)
-
-# build a list of commands to assign values to variables with that name
-text.assign <- paste0("tags$",ft1names, " <- '", flat.tags.1, "'")
-
-tags <- NULL
-
-# build list of commands to assign values to variables
-eval(parse(text=text.assign))
-
-str(tags)
-class(tags)
-
-# make an empty data.table
+# make an empty data.table to hold all the tags
 DT_tags <- data.table(NULL)
 
-# add the tags to it.
-DT_tags <- rbindlist(list(DT_tags, tags), use.names = TRUE, fill = TRUE)
+# get the tags for one Sourcename
+Sourcename.tags <- RSmap.tags("Metadata/SourceName = 'HWDS_h1'")
+
+str(Sourcename.tags)
+# got something
+
+# this is the number of UUIDs for this Sourcename
+n.UUID <- length(Sourcename.tags)
+# 81
+
+# loop through all the UUIDs for this Sourcename
+for( n in 1:n.UUID) {
+  # flatten list of tags for UUID
+  flat.tags <- unlist(Sourcename.tags[n])
+
+  # get names of tags as a list
+  tagnames <- unlist(names(flat.tags))
+
+  # now remove the names
+  names(flat.tags) <- NULL
+
+  # build a list of commands to assign values to variables with tag names 
+  text.assign <- paste0("tags$",tagnames, " <- '", flat.tags, "'")
+
+  # initialize tags object
+  tags <- NULL
+
+  # run the list of commands to assign values to variables
+  eval(parse(text=text.assign))
+
+  # add the tags to DT_tags.
+  DT_tags <- rbindlist(list(DT_tags, tags), use.names = TRUE, fill = TRUE)
+
+}
+
+DT_tags
 
 str(DT_tags)
+names(DT_tags)
