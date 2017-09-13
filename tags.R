@@ -42,69 +42,40 @@ str(tags[1])
 # looks like it works
 
 # now try flattening list
-unlist(tags[1])
 flat.tags.1 <- unlist(tags[1])
 
-
-str(unlist(tags[1]))
-
-flat.tags <- unlist(tags)
-str(flat.tags)
-# no that won't work
-
-# try turning it into a data.table
-tags.2 <- tags
-# no
-
-as.data.table(flat.tags.1)
-# not this either
-
-attributes(flat.tags.1)
-# maybe
-
 str(flat.tags.1)
-
-ft1names <- attributes(flat.tags.1)
-str(ft1names)
-str(ft1names$names) # this might be helpful
+class(flat.tags.1)
 
 # can get the samething this way
 names(flat.tags.1)
 
-as.data.frame(flat.tags.1)
-# maybe?
-
-flat.tags.1[1]
-
-class(flat.tags.1)
-
-# try this
-flat.tags.1
-
+# get the names as a list
 ft1names <- unlist(names(flat.tags.1))
 class(ft1names)
 str(ft1names)
 
+# now remove the names
 names(flat.tags.1) <- NULL
 flat.tags.1
 class(flat.tags.1)
 str(flat.tags.1)
 
-
-assign(ft1names, flat.tags.1)
-
+# build a list of commands to assign values to variables with that name
 text.assign <- paste0("tags$",ft1names, " <- '", flat.tags.1, "'")
 
 tags <- NULL
-tags$Properties.Timezone <- 'America/Los_Angeles'
 
+# build list of commands to assign values to variables
 eval(parse(text=text.assign))
 
 str(tags)
 class(tags)
 
+# make an empty data.table
 DT_tags <- data.table(NULL)
 
-rbindlist(list(DT_tags, tags), use.names = TRUE, fill = TRUE)
+# add the tags to it.
+DT_tags <- rbindlist(list(DT_tags, tags), use.names = TRUE, fill = TRUE)
 
-
+str(DT_tags)
