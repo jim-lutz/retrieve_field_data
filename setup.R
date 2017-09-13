@@ -16,7 +16,6 @@ loadhistory("nohistory")
 # clear the console
 cat("\014")
 
-
 # only works if have internet access
 update.packages(checkBuilt=TRUE)
 
@@ -24,6 +23,15 @@ sessionInfo()
   # R version 3.4.1 (2017-06-30)
   # Platform: x86_64-pc-linux-gnu (64-bit)
   # Running under: Ubuntu 16.04.3 LTS
+
+# install the RSmap tools
+# https://pythonhosted.org/Smap/en/2.0/R_access.html
+# https://github.com/SoftwareDefinedBuildings/smap/blob/master/R/RSmap_1.0.tar.gz
+if(!require(RCurl)){install.packages("RCurl")}
+library(RCurl)
+if(!require(RJSONIO)){install.packages("RJSONIO")}
+library(RJSONIO)
+
 
 # work with tidyverse
 # http://tidyverse.org/

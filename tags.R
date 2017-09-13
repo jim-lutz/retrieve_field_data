@@ -5,14 +5,7 @@
 
 # set packages & etc
 source("setup.R")
-# some trouble w/ RCurl?
 
-
-# install the RSmap tools
-# https://pythonhosted.org/Smap/en/2.0/R_access.html
-# https://github.com/SoftwareDefinedBuildings/smap/blob/master/R/RSmap_1.0.tar.gz
-install.packages("RCurl")
-install.packages("RJSONIO")
 
 install.packages("/home/jiml/Downloads/RSmap_1.0.tar.gz", repos=NULL)
 library(RSmap)
@@ -21,7 +14,7 @@ library(RSmap)
 source("setup_wd.R")
 
 # RSmap functions
-source("functions.R")
+# source("functions.R")
 # not sure if any of these are useful
 
 # following these instructions
@@ -32,14 +25,16 @@ RSmap("http://ec2-54-184-120-83.us-west-2.compute.amazonaws.com/backend")
 DT_tags <- data.table(NULL)
 
 # get the tags for one Sourcename
-Sourcename.tags <- RSmap.tags("Metadata/SourceName = 'HWDS_h1'")
+Sourcename.tags <- RSmap.tags("Metadata/SourceName ~ 'HWDS'")
 
 str(Sourcename.tags)
+length(Sourcename.tags)
+# [1]  2947
 # got something
 
 # this is the number of UUIDs for this Sourcename
 n.UUID <- length(Sourcename.tags)
-# 81
+#  2947
 
 # loop through all the UUIDs for this Sourcename
 for( n in 1:n.UUID) {
@@ -67,6 +62,64 @@ for( n in 1:n.UUID) {
 }
 
 DT_tags
-
 str(DT_tags)
 names(DT_tags)
+
+# looks like it worked
+# save the raw data
+save(DT_tags, file = paste0(wd_data,"DT_tags_raw.RData"))
+
+# clean up the DT_tags data.table
+
+# drop Metadata.uuid
+DT_tags[,Metadata.uuid:=NULL]
+
+# better names
+setnames(DT_tags,
+         c('Properties.Timezone',
+           'Properties.UnitofMeasure', 
+           'Properties.ReadingType', 
+           'Path', 
+           'uuid', 
+           'Metadata.SourceName', 
+           'Metadata.Metadata.Instrument.Model', 
+           'Metadata.Metadata.Instrument.Manufacturer', 
+           'Metadata.Metadata.Extra.Driver', 
+           'Metadata.Description'),
+         c('timezone',
+           'units', 
+           'type', 
+           'path', 
+           'uuid', 
+           'source', 
+           'model', 
+           'study', 
+           'driver', 
+           'other')
+         )
+
+# get house number
+DT_tags[source %like% "HWDS_h", house:= str_sub(source,7,8)]
+sort(unique(DT_tags$house)) # looks like if worked, but house 35?
+
+# get sensorID and sensortype
+DT_tags[path %like% "/hwds_test/0x", ':=' (sensorID = str_sub(path,13,17),
+                                          sensortype = str_sub(path,19,-1)
+                                          )
+        ]
+sort(unique(DT_tags$sensorID)) # OK?
+sort(unique(DT_tags$sensortype)) # OK, except when sensorID =="x5c2/"
+
+DT_tags[sensorID =="x5c2/", ':=' (sensorID = str_sub(path,13,16),
+                                  sensortype = str_sub(path,18,-1)
+)]
+sort(unique(DT_tags$sensortype)) # OK, that's better
+
+# better order
+names(DT_tags)
+setcolorder(DT_tags, c('source', 'path', 'house', 'sensorID', 'sensortype', 'units', 'uuid', 
+                       'type', 'study', 'model', 'timezone', 'driver', 'other'))
+
+save(DT_tags, file = paste0(wd_data,"DT_tags.RData"))
+write.csv(DT_tags, file = paste0(wd_data,"DT_tags.csv"), row.names = FALSE, na="" )
+

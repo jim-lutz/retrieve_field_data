@@ -1,9 +1,16 @@
+# some HWDS files that I didn't use
+*.xcf
+*.txt
+*.png
+
 # History files
 .Rhistory
 .Rapp.history
+nohistory
 
 # Session Data files
 .RData
+
 
 # Example code in package build process
 *-Ex.R
@@ -31,3 +38,4 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+.Rproj.user
