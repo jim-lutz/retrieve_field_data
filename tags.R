@@ -45,6 +45,7 @@ str(tags[1])
 unlist(tags[1])
 flat.tags.1 <- unlist(tags[1])
 
+
 str(unlist(tags[1]))
 
 flat.tags <- unlist(tags)
@@ -65,11 +66,45 @@ str(flat.tags.1)
 
 ft1names <- attributes(flat.tags.1)
 str(ft1names)
-str(ft1names$names)
+str(ft1names$names) # this might be helpful
 
+# can get the samething this way
+names(flat.tags.1)
+
+as.data.frame(flat.tags.1)
+# maybe?
+
+flat.tags.1[1]
+
+class(flat.tags.1)
+
+# try this
 flat.tags.1
 
-as.data.table(flat.tags.1)
+ft1names <- unlist(names(flat.tags.1))
+class(ft1names)
+str(ft1names)
 
+names(flat.tags.1) <- NULL
+flat.tags.1
+class(flat.tags.1)
+str(flat.tags.1)
+
+
+assign(ft1names, flat.tags.1)
+
+text.assign <- paste0("tags$",ft1names, " <- '", flat.tags.1, "'")
+
+tags <- NULL
+tags$Properties.Timezone <- 'America/Los_Angeles'
+
+eval(parse(text=text.assign))
+
+str(tags)
+class(tags)
+
+DT_tags <- data.table(NULL)
+
+rbindlist(list(DT_tags, tags), use.names = TRUE, fill = TRUE)
 
 
