@@ -66,11 +66,11 @@ nrow(DT_tags[path %like% "/pingtest"])
 # 335
 
 # so what are the remaining ones?
-DT_tags[is.na(sensorID)][(path %like% "/pingtest"),][,path] # 335
-DT_tags[is.na(sensorID)][(path %like% "/net_reliability"),][,path] # 24
-DT_tags[is.na(sensorID)][(path %like% "/net_reliabilty"),][,path] # 77  notice the typo in reliability!
+DT_tags[is.na(sensorID)][(path %like% "pingtest"),][,path] # 335
+DT_tags[is.na(sensorID)][(path %like% "net_reliability"),][,path] # 24
+DT_tags[is.na(sensorID)][(path %like% "net_reliabilty"),][,path] # 77  notice the typo in reliability!
 
 335 + 24 + 77 #436 OK they're all there
-nrow(DT_tags[path %like% "net_reliability" | path %like% "net_reliabilty" | path %like% "/pingtest"])
+nrow(DT_tags[path %like% "net_reliability" | path %like% "net_reliabilty" | path %like% "pingtest"])
 # 436
 
