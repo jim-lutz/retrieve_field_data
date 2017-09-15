@@ -29,14 +29,14 @@ start <- as.numeric(strptime("3-1-2013", "%m-%d-%Y"))*1000
 end <- as.numeric(strptime("6-30-2014", "%m-%d-%Y"))*1000
 
 # test on one sensorID
-this.sensorID <- sensorIDs[40]
+this.sensorID <- sensorIDs[40]  # x3255
 
-# get the UUIDs for one sensorID
-
+# get the UUIDs for that sensorID
 UUIDs <- DT_tags[sensorID==this.sensorID, ]$uuid  # sensorID x3255
 
 # get the metadata for that sensorID
 DT_metadata <- DT_tags[sensorID==this.sensorID]
+# may not have to do this, could use DT_tags instead of DT_metadata
 
 # try it on the UUIDs for one sensorID
 data <- RSmap.data_uuid(UUIDs,start,end)
@@ -47,13 +47,13 @@ DT_data <- data.table(epochms=0)
 
 for(n in 1:length(data)) {
   # turn it into a data.table
-  DT <- data.table(epochms=data[[1]]$time, value=data[[1]]$value)
+  DT <- data.table(epochms=data[[n]]$time, value=data[[n]]$value)
   
   # set key
   setkey(DT,epochms)
 
   # get the appropriate sensortype
-  this.uuid = data[[1]]$uuid
+  this.uuid = data[[n]]$uuid
   this.sensortype = DT_metadata[uuid==this.uuid]$sensortype
   
   # rename the value
@@ -63,8 +63,19 @@ for(n in 1:length(data)) {
   DT_data <- merge(DT,DT_data,all=TRUE)
   
 }
+
+# remove the time == 0 record
+DT_data <- DT_data[-1,]
   
-  
+# check on the missing values
+DT_data[is.na(flowB),] #376
+DT_data[is.na(flowB) & is.na(tempA),] #376
+DT_data[is.na(batt_volt),] #4888
+DT_data[is.na(batt_volt) & is.na(sensorA),] #4888
+
+
+
+
 # add a human readable timestamp
 DT[,datetime := as.POSIXct(epochms/1000,origin="1970-01-01", tz = "America/Los_Angeles", format = "%Y-%m-%d %H:%M:%S")]
 DT[,datetime := strftime(epochms/1000, format = "%Y-%m-%d %H:%M:%S", tz = "America/Los_Angeles", usetz = TRUE, origin="1970-01-01")]
