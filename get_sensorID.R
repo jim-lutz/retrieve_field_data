@@ -73,7 +73,26 @@ DT_data[is.na(flowB) & is.na(tempA),] #376
 DT_data[is.na(batt_volt),] #4888
 DT_data[is.na(batt_volt) & is.na(sensorA),] #4888
 
+# get sample epochms data.table to work on
+DT_testing <- DT_data[1:5,]
 
+# a list of epochms only
+DT_testing$epochms
+
+strftime(as.Date(DT_testing$epochms/1000, origin="1970-01-01"), format = "%Y-%m-%d %H:%M:%S", tz = "America/Los_Angeles", usetz = TRUE)
+# nope, it's incorrect & UTC
+
+timestamp <- strftime(as.POSIXct(DT_testing$epochms/1000, origin="1970-01-01"), format = "%Y-%m-%d %H:%M:%S", tz = "America/Los_Angeles", usetz = TRUE)
+class(timestamp)
+str(timestamp)
+# much better
+
+# try it in data.table
+DT_testing[,datetime := strftime(as.POSIXct(DT_testing$epochms/1000, origin="1970-01-01"), 
+                                 format = "%Y-%m-%d %H:%M:%S", 
+                                 tz = "America/Los_Angeles", 
+                                 usetz = TRUE)]
+# looks good.
 
 
 # add a human readable timestamp
