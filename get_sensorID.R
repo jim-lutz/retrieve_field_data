@@ -29,61 +29,69 @@ start <- as.numeric(strptime("3-1-2013", "%m-%d-%Y"))*1000
 end <- as.numeric(strptime("6-30-2014", "%m-%d-%Y"))*1000
 
 # test on one sensorID
-this.sensorID <- sensorIDs[40]  # x3255
+this.sensorID <- sensorIDs[41]  # x3255
 
-# get the UUIDs for that sensorID
-UUIDs <- DT_tags[sensorID==this.sensorID, ]$uuid  # sensorID x3255
+get.this.sensorID <- function(this.sensorID) {
 
-# get the metadata for that sensorID
-DT_metadata <- DT_tags[sensorID==this.sensorID]
-# may not have to do this, could use DT_tags instead of DT_metadata
+  # get the UUIDs for that sensorID
+  UUIDs <- DT_tags[sensorID==this.sensorID, ]$uuid  # sensorID x3255
 
-# try it on the UUIDs for one sensorID
-data <- RSmap.data_uuid(UUIDs,start,end)
+  # get the metadata for that sensorID
+  # DT_metadata <- DT_tags[sensorID==this.sensorID]
+  # may not have to do this, could use DT_tags instead of DT_metadata
 
-str(data) # It's of list of 6 object, each of which is 3 objects, 2 numerical vectors(time,value) and 1 character (uuid)
+  # try it on the UUIDs for one sensorID
+  data <- RSmap.data_uuid(UUIDs,start,end)
 
-# save the raw RSmap object
-save(data, file = paste0(wd_data,"RSmap.",this.sensorID,".raw.xz.RData"), compress = "xz")
+  str(data) # It's of list of 6 object, each of which is 3 objects, 2 numerical vectors(time,value) and 1 character (uuid)
 
-# initialize a dummy data.table
-DT_data <- data.table(epochms=0)
+  # save the raw RSmap object
+  save(data, file = paste0(wd_data,"RSmap.",this.sensorID,".raw.xz.RData"), compress = "xz")
 
-for(n in 1:length(data)) {
-  # turn it into a data.table
-  DT <- data.table(epochms=data[[n]]$time, value=data[[n]]$value)
+  # initialize a dummy data.table
+  DT_data <- data.table(epochms=0)
+
+  for(n in 1:length(data)) {
+    # turn it into a data.table
+    DT <- data.table(epochms=data[[n]]$time, value=data[[n]]$value)
+    
+    # set key
+    setkey(DT,epochms)
   
-  # set key
-  setkey(DT,epochms)
+    # get the appropriate sensortype
+    this.uuid = data[[n]]$uuid
+    this.sensortype = DT_tags[uuid==this.uuid]$sensortype
+    
+    # rename the value
+    setnames(DT,"value", this.sensortype)
+    
+    # merge it into the data.table
+    DT_data <- merge(DT,DT_data,all=TRUE)
+    
+  }
 
-  # get the appropriate sensortype
-  this.uuid = data[[n]]$uuid
-  this.sensortype = DT_metadata[uuid==this.uuid]$sensortype
-  
-  # rename the value
-  setnames(DT,"value", this.sensortype)
-  
-  # merge it into the data.table
-  DT_data <- merge(DT,DT_data,all=TRUE)
-  
-}
+  # remove the time == 0 record
+  DT_data <- DT_data[-1,]
 
-# remove the time == 0 record
-DT_data <- DT_data[-1,]
-
-# add a human readable timestamp with PDT|PST for timezone
-DT_data[,datetime := strftime(as.POSIXct(DT_data$epochms/1000, origin="1970-01-01"), 
+  # add a human readable timestamp with PDT|PST for timezone
+  DT_data[,datetime := strftime(as.POSIXct(DT_data$epochms/1000, origin="1970-01-01"), 
                                  format = "%Y-%m-%d %H:%M:%S", 
                                  tz = "America/Los_Angeles", 
                                  usetz = TRUE)]
 
-# reorder the variable names
-setcolorder(DT_data, c("epochms", "datetime", "flowA", "flowB", "tempA", "tempB", "batt_volt", "sensorA"))
+  # reorder the variable names
+  setcolorder(DT_data, c("epochms", "datetime", "flowA", "flowB", "tempA", "tempB", "batt_volt", "sensorA"))
 
-# save it as sensorID.csv
-fwrite(DT_data, file = paste0(wd_data,this.sensorID,".csv"))
-# 10.0 MB file, estimated total ~2 GB them
+  # save it as sensorID.csv
+  # fwrite(DT_data, file = paste0(wd_data,this.sensorID,".csv"))
+  # 10.0 MB file, estimated total ~2 GB them
 
-# and also save as .Rdata
-save(DT_data, file = paste0(wd_data,this.sensorID,".xz.RData"), compress = "xz")
-# 499.4 kB file, much better 
+  # and also save as .Rdata
+  save(DT_data, file = paste0(wd_data,this.sensorID,".xz.RData"), compress = "xz")
+  # 499.4 kB file, much better 
+}
+
+# now apply the function to the list of sensorIDs
+lapply(sensorIDs[40:42]$sensorID, get.this.sensorID)
+
+
