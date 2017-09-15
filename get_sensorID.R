@@ -66,39 +66,18 @@ for(n in 1:length(data)) {
 
 # remove the time == 0 record
 DT_data <- DT_data[-1,]
-  
-# check on the missing values
-DT_data[is.na(flowB),] #376
-DT_data[is.na(flowB) & is.na(tempA),] #376
-DT_data[is.na(batt_volt),] #4888
-DT_data[is.na(batt_volt) & is.na(sensorA),] #4888
 
-# get sample epochms data.table to work on
-DT_testing <- DT_data[1:5,]
-
-# a list of epochms only
-DT_testing$epochms
-
-strftime(as.Date(DT_testing$epochms/1000, origin="1970-01-01"), format = "%Y-%m-%d %H:%M:%S", tz = "America/Los_Angeles", usetz = TRUE)
-# nope, it's incorrect & UTC
-
-timestamp <- strftime(as.POSIXct(DT_testing$epochms/1000, origin="1970-01-01"), format = "%Y-%m-%d %H:%M:%S", tz = "America/Los_Angeles", usetz = TRUE)
-class(timestamp)
-str(timestamp)
-# much better
-
-# try it in data.table
-DT_testing[,datetime := strftime(as.POSIXct(DT_testing$epochms/1000, origin="1970-01-01"), 
+# add a human readable timestamp with PDT|PST for timezone
+DT_data[,datetime := strftime(as.POSIXct(DT_data$epochms/1000, origin="1970-01-01"), 
                                  format = "%Y-%m-%d %H:%M:%S", 
                                  tz = "America/Los_Angeles", 
                                  usetz = TRUE)]
-# looks good.
 
+# reorder the variable names
+setcolorder(DT_data, c("epochms", "datetime", "flowA", "flowB", "tempA", "tempB", "batt_volt", "sensorA"))
 
-# add a human readable timestamp
-DT[,datetime := as.POSIXct(epochms/1000,origin="1970-01-01", tz = "America/Los_Angeles", format = "%Y-%m-%d %H:%M:%S")]
-DT[,datetime := strftime(epochms/1000, format = "%Y-%m-%d %H:%M:%S", tz = "America/Los_Angeles", usetz = TRUE, origin="1970-01-01")]
+# save it as sensorID.csv
+fwrite(DT_data, file = paste0(wd_data,this.sensorID,".csv"))
+# 10.0 MB file, estimated total ~2 GB them
 
-# this works
-as.POSIXct(DT$epochms/1000,origin="1970-01-01", tz = "America/Los_Angeles") 
 
