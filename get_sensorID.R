@@ -40,7 +40,11 @@ DT_metadata <- DT_tags[sensorID==this.sensorID]
 
 # try it on the UUIDs for one sensorID
 data <- RSmap.data_uuid(UUIDs,start,end)
+
 str(data) # It's of list of 6 object, each of which is 3 objects, 2 numerical vectors(time,value) and 1 character (uuid)
+
+# save the raw RSmap object
+save(data, file = paste0(wd_data,"RSmap.",this.sensorID,".raw.xz.RData"), compress = "xz")
 
 # initialize a dummy data.table
 DT_data <- data.table(epochms=0)
@@ -80,4 +84,6 @@ setcolorder(DT_data, c("epochms", "datetime", "flowA", "flowB", "tempA", "tempB"
 fwrite(DT_data, file = paste0(wd_data,this.sensorID,".csv"))
 # 10.0 MB file, estimated total ~2 GB them
 
-
+# and also save as .Rdata
+save(DT_data, file = paste0(wd_data,this.sensorID,".xz.RData"), compress = "xz")
+# 499.4 kB file, much better 
