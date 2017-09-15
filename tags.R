@@ -21,20 +21,24 @@ source("setup_wd.R")
 # https://pythonhosted.org/Smap/en/2.0/R_access.html
 RSmap("http://ec2-54-184-120-83.us-west-2.compute.amazonaws.com/backend")
 
-# make an empty data.table to hold all the tags
-DT_tags <- data.table(NULL)
-
 # get the tags for one Sourcename
 Sourcename.tags <- RSmap.tags("Metadata/SourceName ~ 'HWDS'")
 
 str(Sourcename.tags)
+
 length(Sourcename.tags)
 # [1]  2947
 # got something
 
+# save the raw RSmap object
+save(Sourcename.tags, file = paste0(wd_data,"RSmap.tags.raw.RData"))
+
 # this is the number of UUIDs for this Sourcename
 n.UUID <- length(Sourcename.tags)
 #  2947
+
+# make an empty data.table to hold all the tags
+DT_tags <- data.table(NULL)
 
 # loop through all the UUIDs for this Sourcename
 for( n in 1:n.UUID) {
@@ -112,7 +116,8 @@ sort(unique(DT_tags$sensortype)) # OK, except when sensorID =="x5c2/"
 
 DT_tags[sensorID =="x5c2/", ':=' (sensorID = str_sub(path,13,16),
                                   sensortype = str_sub(path,18,-1)
-)]
+                                  )]
+
 sort(unique(DT_tags$sensortype)) # OK, that's better
 
 # better order
