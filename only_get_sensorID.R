@@ -25,6 +25,9 @@ sensorIDs[sensorID=='x3320']
 sensorIDs[sensorID=='x3320', which = TRUE] # 112
 # 113-56 = 57? suspiciously close to where it choked the last time.
 
+# choked, last one Sep 16 07:51 RSmap.x3331.raw.xz.RData
+sensorIDs[sensorID=='x3331', which = TRUE] # 118
+
 # following these instructions
 # https://pythonhosted.org/Smap/en/2.0/R_access.html
 RSmap("http://ec2-54-184-120-83.us-west-2.compute.amazonaws.com/backend")
@@ -57,6 +60,14 @@ library(plyr)
 library(dplyr)
 
 
-# now apply the function to the list of sensorIDs
-l_ply(sensorIDs[113:253]$sensorID, get.this.sensorID, .progress = "text")
+# now apply the function to the (remaining) list of sensorIDs
+l_ply(sensorIDs[120:253]$sensorID, get.this.sensorID, .progress = "text")
+
+# see if continues after (error in?) l_ply
+time.is <- date()
+cat("made it past l_ply at ", time.is)
+
+# sensorIDs[119:253]$sensorID, latest one still Sep 16 07:51 RSmap.x3331.raw.xz.RData
+# Error in value[[3L]](cond) : cURL error
+# skip 55, 119
 
