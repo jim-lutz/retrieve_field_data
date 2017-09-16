@@ -29,7 +29,7 @@ start <- as.numeric(strptime("3-1-2013", "%m-%d-%Y"))*1000
 end <- as.numeric(strptime("6-30-2014", "%m-%d-%Y"))*1000
 
 # test on one sensorID
-this.sensorID <- sensorIDs[41]  # x3255
+# this.sensorID <- sensorIDs[41]  # x3255
 
 get.this.sensorID <- function(this.sensorID) {
 
@@ -54,6 +54,28 @@ library(dplyr)
 
 system.time(
 # now apply the function to the list of sensorIDs
-l_ply(sensorIDs$sensorID, get.this.sensorID, .progress = "text")
+l_ply(sensorIDs[56:253]$sensorID, get.this.sensorID, .progress = "text")
 )
+
+# Error in value[[3L]](cond) : cURL error 
+
+# print list of sensorIDs in order used.
+fwrite(sensorIDs, file = paste0(wd_data,"sensorID.csv"))
+# x327d probably caused the problem, # 55?
+sensorIDs[54:56]
+sensorIDs[55]$sensorID
+
+# get the UUIDs for that sensorID
+UUIDs <- DT_tags[sensorID=="x327d", ]$uuid  # sensorID x327d
+# [1] "f1dcea0b-7594-5e06-a211-337932c85997" "a57ea54c-dee4-5401-a4c2-c98a1fd8366c" "745f9153-5fea-5e32-837a-614b226e3178"
+# [4] "3755a6bc-76b5-5066-b142-a717370a4c68" "9a9d9416-8b41-575e-8de0-671333f5c884" "c55f4e94-af05-5c5f-9fde-ba8302e13468"
+# [7] "dc9a13ab-1db7-58dd-b7ba-6cd4ab6c2768"
+
+# get the data for those uuids
+data <- RSmap.data_uuid(UUIDs,start,end)
+# Error in value[[3L]](cond) : cURL error
+
+
+
+
 
