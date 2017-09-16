@@ -54,6 +54,6 @@ library(dplyr)
 
 system.time(
 # now apply the function to the list of sensorIDs
-l_ply(sensorIDs[40:42]$sensorID, get.this.sensorID, .progress = "text")
+l_ply(sensorIDs$sensorID, get.this.sensorID, .progress = "text")
 )
 
