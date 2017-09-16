@@ -61,7 +61,7 @@ library(dplyr)
 
 
 # now apply the function to the (remaining) list of sensorIDs
-l_ply(sensorIDs[120:253]$sensorID, get.this.sensorID, .progress = "text")
+l_ply(sensorIDs[168:253]$sensorID, get.this.sensorID, .progress = "text")
 
 # see if continues after (error in?) l_ply
 time.is <- date()
@@ -69,5 +69,16 @@ cat("made it past l_ply at ", time.is)
 
 # sensorIDs[119:253]$sensorID, latest one still Sep 16 07:51 RSmap.x3331.raw.xz.RData
 # Error in value[[3L]](cond) : cURL error
-# skip 55, 119
+# and again after Sep 16 08:59 RSmap.x3384.raw.xz.RData , 133
+# Sep 16 09:32 RSmap.x3441.raw.xz.RData, 157
+# Sep 16 10:03 RSmap.x3466.raw.xz.RData, 166
+sensorIDs[sensorID=='x3466', which = TRUE] 
+# skiped 55, 119, 134, 158, 167,
+sensorIDs[c(55, 119, 134, 158, 167)]
+  # 1:    x327d
+  # 2:    x3332
+  # 3:    x3385
+  # 4:    x3443
+  # 5:    x3468
+
 
